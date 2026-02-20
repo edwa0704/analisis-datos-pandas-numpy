@@ -140,29 +140,36 @@ def save_report(text: str, output_dir="reports", filename="paso1_reporte.txt"):
 
     print(f"✅ Reporte guardado: {report_path}")
 
-def data_quality_checks(df: pd.DataFrame) -> dict:
-    checks = {}
+def data_quality_checks(df: pd.DataFrame) -> pd.DataFrame:
+    summary = {}
 
-    checks["rows"] = int(df.shape[0])
-    checks["cols"] = int(df.shape[1])
+    summary["rows"] = df.shape[0]
+    summary["cols"] = df.shape[1]
 
-    # Nulos por columna (top 10)
-    nulls = df.isna().sum().sort_values(ascending=False)
-    checks["nulls_top10"] = nulls.head(10).to_dict()
-
-    # Duplicados (por tx_id debería ser 0)
     if "tx_id" in df.columns:
-        checks["dup_tx_id"] = int(df["tx_id"].duplicated().sum())
+        summary["dup_tx_id"] = df["tx_id"].duplicated().sum()
 
-    # Rango simple de price/volume
     if "price" in df.columns:
-        checks["price_min"] = float(df["price"].min())
-        checks["price_max"] = float(df["price"].max())
-    if "volume" in df.columns:
-        checks["volume_min"] = int(df["volume"].min())
-        checks["volume_max"] = int(df["volume"].max())
+        summary["price_min"] = df["price"].min()
+        summary["price_max"] = df["price"].max()
 
-    return checks
+    if "volume" in df.columns:
+        summary["volume_min"] = df["volume"].min()
+        summary["volume_max"] = df["volume"].max()
+
+    # Convertir resumen principal en DataFrame
+    summary_df = pd.DataFrame.from_dict(summary, orient="index", columns=["value"])
+
+    # Nulos por columna
+    nulls_df = (
+        df.isna()
+        .sum()
+        .reset_index()
+        .rename(columns={"index": "column", 0: "null_count"})
+        .sort_values("null_count", ascending=False)
+    )
+
+    return summary_df, nulls_df
 
 
 def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
@@ -233,9 +240,14 @@ def main():
     df = optimize_dtypes(df)
 
     # Checks de calidad
-    checks = data_quality_checks(df)
-    print("✅ Data Quality Checks (resumen):")
-    print(checks)
+    summary_df, nulls_df = data_quality_checks(df)
+
+    print("\n=== Data Quality Summary ===")
+print("\n=== Null Values (Top 10) ===")
+
+    # Guardar tablas profesionales
+    summary_df.to_csv("reports/data_quality_summary.csv", index=True)
+    nulls_df.to_csv("reports/data_quality_nulls.csv", index=False)
 
     print("DF con features (pandas):", df.shape)
     print(df[["user_id", "timestamp", "amount", "avg_amount_48h"]].head())
@@ -250,8 +262,11 @@ def main():
     report.append("\nKS test (price) normal vs sospechosa\n")
     report.append(f"n_normal={n_normal}, n_suspicious={n_susp}\n")
     report.append(f"KS_statistic={stat:.6f}, p_value={p_value:.6e}\n")
-    report.append("\nData Quality Checks (top):\n")
-    report.append(f"{checks}\n")
+    report.append("\nData Quality Summary:\n")
+    report.append(summary_df.to_string())
+    report.append("\n\nNull Values (Top 10):\n")
+    report.append(nulls_df.head(10).to_string(index=False))
+    report.append("\n")
 
     save_outputs(df, output_dir="data")
     save_report("".join(report), output_dir="reports", filename="paso1_reporte.txt")

@@ -1,0 +1,13 @@
+column,null_count
+tx_id,0
+user_id,0
+timestamp,0
+price,0
+volume,0
+is_suspicious,0
+segment,0
+country,0
+amount,0
+avg_amount_48h,0
+segment_te,0
+price_smooth,0
