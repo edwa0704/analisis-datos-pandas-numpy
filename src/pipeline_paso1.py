@@ -5,6 +5,7 @@ Pipeline base (se irá completando por commits).
 
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from scipy import stats
 from scipy.signal import savgol_filter
 
@@ -118,6 +119,31 @@ def ks_test_normal_vs_suspicious(df: pd.DataFrame, col="price"):
     stat, p_value = stats.ks_2samp(normal, suspicious)
     return stat, p_value, len(normal), len(suspicious)
 
+def save_outputs(df: pd.DataFrame, output_dir="data"):
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Guardar dataset final (solo algunas columnas para que no pese demasiado)
+    cols_to_save = [
+        "tx_id", "user_id", "timestamp", "price", "price_smooth", "volume",
+        "amount", "avg_amount_48h", "segment", "segment_te", "country", "is_suspicious"
+    ]
+    existing_cols = [c for c in cols_to_save if c in df.columns]
+    df[existing_cols].to_csv(out_dir / "paso1_features.csv", index=False)
+
+    print(f"✅ Archivo guardado: {out_dir / 'paso1_features.csv'}")
+
+
+def save_report(text: str, output_dir="reports", filename="paso1_reporte.txt"):
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    report_path = out_dir / filename
+    report_path.write_text(text, encoding="utf-8")
+
+    print(f"✅ Reporte guardado: {report_path}")
+
+
 def main():
     print("✅ Paso 1 iniciado")
     print("Versiones:")
@@ -146,6 +172,19 @@ def main():
     print("DF con features (pandas):", df.shape)
     print(df[["user_id", "timestamp", "amount", "avg_amount_48h"]].head())
     
+    # Reporte resumen
+    report = []
+    report.append("Paso 1 - Resumen\n")
+    report.append(f"Users: {users.shape}\n")
+    report.append(f"Tx: {tx.shape}\n")
+    report.append(f"DF final: {df.shape}\n")
+    report.append(f"Columnas: {df.columns.tolist()}\n")
+    report.append("\nKS test (price) normal vs sospechosa\n")
+    report.append(f"n_normal={n_normal}, n_suspicious={n_susp}\n")
+    report.append(f"KS_statistic={stat:.6f}, p_value={p_value:.6e}\n")
+
+    save_outputs(df, output_dir="data")
+    save_report("".join(report), output_dir="reports", filename="paso1_reporte.txt")
 
 if __name__ == "__main__":
     main()
