@@ -36,6 +36,37 @@ def generate_synthetic_data(n_users=5000, n_tx=200000, seed=42):
     return users, transactions
 
 
+def build_features_pandas(users: pd.DataFrame, tx: pd.DataFrame) -> pd.DataFrame:
+    tx = tx.copy()
+    tx["timestamp"] = pd.to_datetime(tx["timestamp"])
+
+    df = tx.merge(users, on="user_id", how="left", validate="many_to_one")
+    df["amount"] = df["price"] * df["volume"]
+    df = df.sort_values(["user_id", "timestamp"]).reset_index(drop=True)
+    return df
+
+
+def rolling_avg_48h(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df = df.sort_values(["user_id", "timestamp"]).reset_index(drop=True)
+
+    # Crear avg_amount_48h por usuario SIN apply:
+    # 1) ponemos timestamp como índice temporal
+    # 2) hacemos rolling por tiempo y calculamos la media del amount
+    out = (
+        df.set_index("timestamp")
+          .groupby("user_id")["amount"]
+          .rolling("48h")
+          .mean()
+          .reset_index(name="avg_amount_48h")
+    )
+
+    # out tiene columnas: user_id, timestamp, avg_amount_48h
+    # lo unimos de vuelta con df por user_id y timestamp
+    df = df.merge(out, on=["user_id", "timestamp"], how="left")
+    return df
+
 def main():
     print("✅ Paso 1 iniciado")
     print("Versiones:")
@@ -45,6 +76,12 @@ def main():
     users, tx = generate_synthetic_data()
     print("Users:", users.shape, "Tx:", tx.shape)
 
+    df = build_features_pandas(users, tx)
+    df = rolling_avg_48h(df)
+
+    print("DF con features (pandas):", df.shape)
+    print(df[["user_id", "timestamp", "amount", "avg_amount_48h"]].head())
+    
 
 if __name__ == "__main__":
     main()
