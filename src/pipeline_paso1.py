@@ -110,6 +110,14 @@ def smooth_price_savgol(df: pd.DataFrame, col="price", window=51, poly=3) -> pd.
     df[f"{col}_smooth"] = savgol_filter(y, window_length=window, polyorder=poly)
     return df
 
+def ks_test_normal_vs_suspicious(df: pd.DataFrame, col="price"):
+    normal = df.loc[df["is_suspicious"] == 0, col].to_numpy()
+    suspicious = df.loc[df["is_suspicious"] == 1, col].to_numpy()
+
+    # SciPy KS test: compara distribuciones
+    stat, p_value = stats.ks_2samp(normal, suspicious)
+    return stat, p_value, len(normal), len(suspicious)
+
 def main():
     print("✅ Paso 1 iniciado")
     print("Versiones:")
@@ -129,6 +137,11 @@ def main():
     df = smooth_price_savgol(df, col="price", window=51, poly=3)
     print("Suavizado Savitzky-Golay listo. Columnas nuevas:", ["price_smooth"])
     print(df[["timestamp", "price", "price_smooth"]].head())
+
+    stat, p_value, n_normal, n_susp = ks_test_normal_vs_suspicious(df, col="price")
+    print("KS test (price) normal vs sospechosa:")
+    print(f"  n_normal={n_normal}, n_suspicious={n_susp}")
+    print(f"  KS_statistic={stat:.6f}, p_value={p_value:.6e}")
 
     print("DF con features (pandas):", df.shape)
     print(df[["user_id", "timestamp", "amount", "avg_amount_48h"]].head())
