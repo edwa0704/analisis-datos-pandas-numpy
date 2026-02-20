@@ -9,15 +9,6 @@ from scipy import stats
 from scipy.signal import savgol_filter
 
 
-def main():
-    print("✅ Paso 1 iniciado")
-    print("Versiones:")
-    print("  pandas:", pd.__version__)
-    print("  numpy:", np.__version__)
-
-
-if __name__ == "__main__":
-    main()
 def generate_synthetic_data(n_users=5000, n_tx=200000, seed=42):
     rng = np.random.default_rng(seed)
 
@@ -28,7 +19,10 @@ def generate_synthetic_data(n_users=5000, n_tx=200000, seed=42):
     })
 
     start = pd.Timestamp("2026-02-10")
-    timestamps = start + pd.to_timedelta(rng.integers(0, 10 * 24 * 3600, size=n_tx), unit="s")
+    timestamps = start + pd.to_timedelta(
+        rng.integers(0, 10 * 24 * 3600, size=n_tx),
+        unit="s"
+    )
 
     transactions = pd.DataFrame({
         "tx_id": np.arange(1, n_tx + 1),
@@ -40,5 +34,17 @@ def generate_synthetic_data(n_users=5000, n_tx=200000, seed=42):
     })
 
     return users, transactions
+
+
+def main():
+    print("✅ Paso 1 iniciado")
+    print("Versiones:")
+    print("  pandas:", pd.__version__)
+    print("  numpy:", np.__version__)
+
     users, tx = generate_synthetic_data()
     print("Users:", users.shape, "Tx:", tx.shape)
+
+
+if __name__ == "__main__":
+    main()
