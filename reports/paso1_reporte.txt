@@ -1,0 +1,12 @@
+Paso 1 - Resumen
+Users: (5000, 3)
+Tx: (200000, 6)
+DF final: (200000, 12)
+Columnas: ['tx_id', 'user_id', 'timestamp', 'price', 'volume', 'is_suspicious', 'segment', 'country', 'amount', 'avg_amount_48h', 'segment_te', 'price_smooth']
+
+KS test (price) normal vs sospechosa
+n_normal=198016, n_suspicious=1984
+KS_statistic=0.016815, p_value=6.290287e-01
+
+Data Quality Checks (top):
+{'rows': 200000, 'cols': 12, 'nulls_top10': {'tx_id': 0, 'user_id': 0, 'timestamp': 0, 'price': 0, 'volume': 0, 'is_suspicious': 0, 'segment': 0, 'country': 0, 'amount': 0, 'avg_amount_48h': 0}, 'dup_tx_id': 0, 'price_min': 1.0, 'price_max': 216.8257293701172, 'volume_min': 1, 'volume_max': 4}

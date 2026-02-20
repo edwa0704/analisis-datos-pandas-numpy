@@ -3,6 +3,7 @@ Paso 1: El Caos de los Datos (Pandas, NumPy & SciPy)
 Pipeline base (se irá completando por commits).
 """
 
+import argparse
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -52,20 +53,16 @@ def rolling_avg_48h(df: pd.DataFrame) -> pd.DataFrame:
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     df = df.sort_values(["user_id", "timestamp"]).reset_index(drop=True)
 
-    # Crear avg_amount_48h por usuario SIN apply:
-    # 1) ponemos timestamp como índice temporal
-    # 2) hacemos rolling por tiempo y calculamos la media del amount
-    out = (
+    s = (
         df.set_index("timestamp")
           .groupby("user_id")["amount"]
           .rolling("48h")
           .mean()
-          .reset_index(name="avg_amount_48h")
     )
 
-    # out tiene columnas: user_id, timestamp, avg_amount_48h
-    # lo unimos de vuelta con df por user_id y timestamp
-    df = df.merge(out, on=["user_id", "timestamp"], how="left")
+    # s es una Serie con MultiIndex (user_id, timestamp) y está en el mismo orden que df
+    # Lo convertimos a numpy y lo asignamos por orden
+    df["avg_amount_48h"] = s.to_numpy()
     return df
 
 def target_encoding_numpy(df: pd.DataFrame, cat_col="segment", target_col="is_suspicious") -> pd.DataFrame:
@@ -191,13 +188,29 @@ def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Paso 1 - Pipeline de features")
+    parser.add_argument("--n_users", type=int, default=5000)
+    parser.add_argument("--n_tx", type=int, default=200000)
+    parser.add_argument("--seed", type=int, default=42)
+    return parser.parse_args()
+
 def main():
+    # 1️⃣ Parsear argumentos
+    args = parse_args()
+
     print("✅ Paso 1 iniciado")
     print("Versiones:")
     print("  pandas:", pd.__version__)
     print("  numpy:", np.__version__)
+    print(f"Parametros: n_users={args.n_users}, n_tx={args.n_tx}, seed={args.seed}")
 
-    users, tx = generate_synthetic_data()
+    # 2️⃣ Generar datos con argumentos
+    users, tx = generate_synthetic_data(
+        n_users=args.n_users,
+        n_tx=args.n_tx,
+        seed=args.seed
+    )
     print("Users:", users.shape, "Tx:", tx.shape)
 
     df = build_features_pandas(users, tx)
@@ -216,7 +229,7 @@ def main():
     print(f"  n_normal={n_normal}, n_suspicious={n_susp}")
     print(f"  KS_statistic={stat:.6f}, p_value={p_value:.6e}")
 
-        # Optimización de memoria / tipos
+    # Optimización de memoria / tipos
     df = optimize_dtypes(df)
 
     # Checks de calidad
