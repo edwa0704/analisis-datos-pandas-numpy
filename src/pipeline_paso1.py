@@ -66,7 +66,7 @@ def rolling_avg_48h(df: pd.DataFrame) -> pd.DataFrame:
     # lo unimos de vuelta con df por user_id y timestamp
     df = df.merge(out, on=["user_id", "timestamp"], how="left")
     return df
-    
+
 def target_encoding_numpy(df: pd.DataFrame, cat_col="segment", target_col="is_suspicious") -> pd.DataFrame:
     df = df.copy()
 
@@ -86,6 +86,30 @@ def target_encoding_numpy(df: pd.DataFrame, cat_col="segment", target_col="is_su
     df[f"{cat_col}_te"] = means[inv]
     return df
 
+def smooth_price_savgol(df: pd.DataFrame, col="price", window=51, poly=3) -> pd.DataFrame:
+    df = df.copy()
+
+    # Ordenar por tiempo para que la tendencia tenga sentido
+    df = df.sort_values("timestamp").reset_index(drop=True)
+
+    y = df[col].to_numpy()
+
+    # Ajustar ventana (debe ser impar y menor o igual al tamaño)
+    n = len(y)
+    if n < 7:
+        df[f"{col}_smooth"] = y
+        return df
+
+    if window > n:
+        window = n if n % 2 == 1 else n - 1
+    if window < 5:
+        window = 5
+    if window % 2 == 0:
+        window += 1
+
+    df[f"{col}_smooth"] = savgol_filter(y, window_length=window, polyorder=poly)
+    return df
+
 def main():
     print("✅ Paso 1 iniciado")
     print("Versiones:")
@@ -101,6 +125,10 @@ def main():
     df = target_encoding_numpy(df, cat_col="segment", target_col="is_suspicious")
     print("Target Encoding listo. Columnas nuevas:", ["segment_te"])
     print(df[["segment", "segment_te", "is_suspicious"]].head())
+    
+    df = smooth_price_savgol(df, col="price", window=51, poly=3)
+    print("Suavizado Savitzky-Golay listo. Columnas nuevas:", ["price_smooth"])
+    print(df[["timestamp", "price", "price_smooth"]].head())
 
     print("DF con features (pandas):", df.shape)
     print(df[["user_id", "timestamp", "amount", "avg_amount_48h"]].head())
