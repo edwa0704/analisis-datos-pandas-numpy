@@ -143,6 +143,53 @@ def save_report(text: str, output_dir="reports", filename="paso1_reporte.txt"):
 
     print(f"✅ Reporte guardado: {report_path}")
 
+def data_quality_checks(df: pd.DataFrame) -> dict:
+    checks = {}
+
+    checks["rows"] = int(df.shape[0])
+    checks["cols"] = int(df.shape[1])
+
+    # Nulos por columna (top 10)
+    nulls = df.isna().sum().sort_values(ascending=False)
+    checks["nulls_top10"] = nulls.head(10).to_dict()
+
+    # Duplicados (por tx_id debería ser 0)
+    if "tx_id" in df.columns:
+        checks["dup_tx_id"] = int(df["tx_id"].duplicated().sum())
+
+    # Rango simple de price/volume
+    if "price" in df.columns:
+        checks["price_min"] = float(df["price"].min())
+        checks["price_max"] = float(df["price"].max())
+    if "volume" in df.columns:
+        checks["volume_min"] = int(df["volume"].min())
+        checks["volume_max"] = int(df["volume"].max())
+
+    return checks
+
+
+def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    # Enteros (reduce memoria)
+    int_cols = ["tx_id", "user_id", "segment", "volume", "is_suspicious"]
+    for c in int_cols:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], downcast="integer")
+
+    # Floats
+    float_cols = ["price", "price_smooth", "amount", "avg_amount_48h", "segment_te"]
+    for c in float_cols:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], downcast="float")
+
+    # Categorías
+    cat_cols = ["country"]
+    for c in cat_cols:
+        if c in df.columns:
+            df[c] = df[c].astype("category")
+
+    return df
 
 def main():
     print("✅ Paso 1 iniciado")
@@ -169,6 +216,14 @@ def main():
     print(f"  n_normal={n_normal}, n_suspicious={n_susp}")
     print(f"  KS_statistic={stat:.6f}, p_value={p_value:.6e}")
 
+        # Optimización de memoria / tipos
+    df = optimize_dtypes(df)
+
+    # Checks de calidad
+    checks = data_quality_checks(df)
+    print("✅ Data Quality Checks (resumen):")
+    print(checks)
+
     print("DF con features (pandas):", df.shape)
     print(df[["user_id", "timestamp", "amount", "avg_amount_48h"]].head())
     
@@ -182,6 +237,8 @@ def main():
     report.append("\nKS test (price) normal vs sospechosa\n")
     report.append(f"n_normal={n_normal}, n_suspicious={n_susp}\n")
     report.append(f"KS_statistic={stat:.6f}, p_value={p_value:.6e}\n")
+    report.append("\nData Quality Checks (top):\n")
+    report.append(f"{checks}\n")
 
     save_outputs(df, output_dir="data")
     save_report("".join(report), output_dir="reports", filename="paso1_reporte.txt")
