@@ -66,6 +66,25 @@ def rolling_avg_48h(df: pd.DataFrame) -> pd.DataFrame:
     # lo unimos de vuelta con df por user_id y timestamp
     df = df.merge(out, on=["user_id", "timestamp"], how="left")
     return df
+    
+def target_encoding_numpy(df: pd.DataFrame, cat_col="segment", target_col="is_suspicious") -> pd.DataFrame:
+    df = df.copy()
+
+    # Convertimos categoría a códigos 0..k-1 sin for
+    cats, inv = np.unique(df[cat_col].to_numpy(), return_inverse=True)
+
+    y = df[target_col].astype(float).to_numpy()
+
+    # suma del target por categoría
+    sums = np.bincount(inv, weights=y)
+    # conteo por categoría
+    counts = np.bincount(inv)
+
+    means = sums / np.maximum(counts, 1)
+
+    # asignar encoding a cada fila
+    df[f"{cat_col}_te"] = means[inv]
+    return df
 
 def main():
     print("✅ Paso 1 iniciado")
@@ -78,6 +97,10 @@ def main():
 
     df = build_features_pandas(users, tx)
     df = rolling_avg_48h(df)
+
+    df = target_encoding_numpy(df, cat_col="segment", target_col="is_suspicious")
+    print("Target Encoding listo. Columnas nuevas:", ["segment_te"])
+    print(df[["segment", "segment_te", "is_suspicious"]].head())
 
     print("DF con features (pandas):", df.shape)
     print(df[["user_id", "timestamp", "amount", "avg_amount_48h"]].head())
