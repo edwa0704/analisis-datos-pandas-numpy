@@ -8,5 +8,25 @@ KS test (price) normal vs sospechosa
 n_normal=198016, n_suspicious=1984
 KS_statistic=0.016815, p_value=6.290287e-01
 
-Data Quality Checks (top):
-{'rows': 200000, 'cols': 12, 'nulls_top10': {'tx_id': 0, 'user_id': 0, 'timestamp': 0, 'price': 0, 'volume': 0, 'is_suspicious': 0, 'segment': 0, 'country': 0, 'amount': 0, 'avg_amount_48h': 0}, 'dup_tx_id': 0, 'price_min': 1.0, 'price_max': 216.8257293701172, 'volume_min': 1, 'volume_max': 4}
+Data Quality Summary:
+                    value
+rows        200000.000000
+cols            12.000000
+dup_tx_id        0.000000
+price_min        1.000000
+price_max      216.825729
+volume_min       1.000000
+volume_max       4.000000
+
+Null Values (Top 10):
+        column  null_count
+         tx_id           0
+       user_id           0
+     timestamp           0
+         price           0
+        volume           0
+ is_suspicious           0
+       segment           0
+       country           0
+        amount           0
+avg_amount_48h           0
