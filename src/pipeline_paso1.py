@@ -225,12 +225,10 @@ def main():
 
     df = target_encoding_numpy(df, cat_col="segment", target_col="is_suspicious")
     print("Target Encoding listo. Columnas nuevas:", ["segment_te"])
-    print(df[["segment", "segment_te", "is_suspicious"]].head())
-    
+    print(df[["segment", "segment_te", "is_suspicious"]].head()) 
     df = smooth_price_savgol(df, col="price", window=51, poly=3)
     print("Suavizado Savitzky-Golay listo. Columnas nuevas:", ["price_smooth"])
     print(df[["timestamp", "price", "price_smooth"]].head())
-
     stat, p_value, n_normal, n_susp = ks_test_normal_vs_suspicious(df, col="price")
     print("KS test (price) normal vs sospechosa:")
     print(f"  n_normal={n_normal}, n_suspicious={n_susp}")
@@ -243,7 +241,10 @@ def main():
     summary_df, nulls_df = data_quality_checks(df)
 
     print("\n=== Data Quality Summary ===")
-print("\n=== Null Values (Top 10) ===")
+    print(summary_df)
+
+    print("\n=== Null Values (Top 10) ===")
+    print(nulls_df.head(10))
 
     # Guardar tablas profesionales
     summary_df.to_csv("reports/data_quality_summary.csv", index=True)
