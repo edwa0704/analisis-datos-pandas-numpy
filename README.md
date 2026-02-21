@@ -1,129 +1,116 @@
 📊 Análisis de Datos con Pandas, NumPy & SciPy
-Paso 1: Ingeniería de Características Avanzada
-Este proyecto implementa un pipeline de transformación y análisis de datos utilizando herramientas avanzadas del ecosistema científico de Python.
-Tecnologías utilizadas
-Pandas → Merge complejo y window functions (rolling 48h)
-NumPy → Target Encoding vectorizado (sin bucles for)
-SciPy → Filtro Savitzky–Golay y test estadístico Kolmogorov–Smirnov
-El objetivo es generar features avanzadas listas para modelado o análisis exploratorio.
 
-📁 Estructura del Proyecto:
+Proyecto de ingeniería de características y visualización avanzada utilizando el ecosistema científico de Python.
+
+Este repositorio implementa:
+✔ Generación de datos sintéticos
+✔ Feature Engineering avanzado
+✔ Validaciones estadísticas
+✔ Modelado supervisado
+✔ Visualización de alta dimensionalidad
+✔ Dashboard 2x2 profesional
+✔ Exportación automática de reportes
+
+🧠 ¿Qué hace este proyecto?
+
+Este proyecto simula un entorno real de análisis de transacciones:
+
+Genera usuarios y transacciones.
+Construye variables avanzadas (features).
+Aplica técnicas estadísticas.
+Reduce dimensionalidad.
+Entrena modelos de clasificación.
+Genera visualizaciones y reportes automáticos.
+Está dividido en:
+
+🔹 Paso 1 → Ingeniería de Características
+
+🔹 Paso 2 → Modelado y Visualización
+
+📁 Estructura del Proyecto
 analisis-datos-pandas-numpy/
+│
 ├── src/
-│   └── pipeline_paso1.py
+│   ├── pipeline_paso1.py
+│   ├── paso2_modelo.py
+│   └── paso2_visualizacion.py
+│
 ├── data/
 ├── reports/
 ├── requirements.txt
 └── README.md
+🧩 Requisitos Previos
 
-⚙️ Instalación:
-1️⃣ Crear entorno virtual (python -m venv .venv)
-2️⃣ Activar entorno virtual (.\.venv\Scripts\Activate.ps1)
-3️⃣ Instalar dependencias (pip install -r requirements.txt)
+Antes de empezar necesitas:
 
-🚀 Ejecutar Paso 1 
-Ejecución básica (python src/pipeline_paso1.py)
-Ejecución con parámetros personalizados (python src/pipeline_paso1.py --n_users 5000 --n_tx 200000 --seed 42)
+Python 3.10 o superior
+Git instalado
+Terminal (CMD o PowerShell)
+Verificar Python:
+python --version
+📥 Cómo Clonar el Proyecto
 
-Parámetros disponibles: 
---n_users → cantidad de usuarios
---n_tx → cantidad de transacciones
---seed → semilla para reproducibilidad
+1️⃣ Abrir la terminal
+2️⃣ Ejecutar:
 
-🧠 Funcionalidades Implementadas
+git clone https://github.com/edwa0704/analisis-datos-pandas-numpy.git
+cd analisis-datos-pandas-numpy
+⚙️ Instalación Paso a Paso
 
-✔ Generación de datos sintéticos
-✔ Merge validado (many_to_one)
-✔ Feature amount = price * volume
-✔ Rolling 48h por usuario (avg_amount_48h)
-✔ Target Encoding vectorizado (segment_te)
-✔ Suavizado Savitzky–Golay (price_smooth)
-✔ KS Test (normal vs sospechosa)
-✔ Optimización de tipos
-✔ Validaciones de calidad de datos
-✔ Export de dataset y reportes
+1️⃣ Crear entorno virtual
+python -m venv .venv
 
-📤 Archivos Generados
-Al ejecutar el pipeline se generan:
+2️⃣ Activar entorno virtual
+CMD:
+.\.venv\Scripts\activate.bat
+
+PowerShell:
+.\.venv\Scripts\Activate.ps1
+
+Si está activo verás algo así:
+(.venv)
+
+3️⃣ Instalar dependencias
+pip install -r requirements.txt
+
+▶ Ejecutar Paso 1 – Ingeniería de Características
+
+Ejecución básica:
+
+python src/pipeline_paso1.py
+
+Ejecución personalizada:
+python src/pipeline_paso1.py --n_users 5000 --n_tx 200000 --seed 42
+🔧 Parámetros disponibles
+
+--n_users → Número de usuarios
+--n_tx → Número de transacciones
+--seed → Semilla para reproducibilidad
+
+📤 Archivos Generados en Paso 1
+
+Se crean automáticamente:
 
 data/paso1_features.csv
 reports/paso1_reporte.txt
 reports/data_quality_summary.csv
 reports/data_quality_nulls.csv
 
-✅ Verificación 
-La ejecución correcta debe mostrar en terminal:
-
-Shapes de usuarios y transacciones
-Confirmación de columnas generadas
-Resultado del KS test (stat y p-value)
-Validación de duplicados y nulos
-
-📝 Historial de Desarrollo
-Estructura base
-Generación de datos
-Merge y features
-Rolling 48h
-Target Encoding
-Suavizado con SciPy
-KS Test
-Reportes y validaciones
-Correcciones finales
-
-
-🔜 Próximo Paso
-Paso 2: Visualización de Alta Dimensionalidad
-Reducción de dimensionalidad (t-SNE o UMAP)
-Visualización con Seaborn
-Representación de múltiples variables en 2D
-
-📊 Paso 2: Visualización de Alta Dimensionalidad (Matplotlib & Seaborn)
-🎯 Objetivo
-
-Visualizar datos de alta dimensionalidad (>3 dimensiones) mediante reducción a 2 componentes y modelado supervisado.
-
-Se implementa:
-- 🔹 Reducción de dimensionalidad con **t-SNE (Scikit-learn)**
-- 🔹 Visualización con **Seaborn (color = price, tamaño = volume)**
-- 🔹 Modelo de clasificación (Logistic Regression)
-- 🔹 Superficie de decisión
-- 🔹 Curva de aprendizaje (Loss vs Epochs)
-- 🔹 Curva en tiempo real (GIF)
-- 🔹 Dashboard final 2x2 (Matplotlib)
-- 🔹 Exportación de métricas en CSV
-
-📁 Estructura del Proyecto:
-src/
- ├── pipeline_paso1.py
- ├── paso2_visualizacion.py
- └── paso2_modelo.py
-
-📦 Requisitos
-
-Python 3.10+
-
-Instalar dependencias:
-
-```bash
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-```
-▶ Ejecutar Paso 2:
+▶ Ejecutar Paso 2 
+– Modelado y Visualización
 python src/paso2_modelo.py
 
 Ejecución personalizada:
 python src/paso2_modelo.py --epochs 15 --sample 20000
 
-Opciones disponibles:
-Argumento	Descripción
---epochs	Número de épocas para SGDClassifier
---sample	Tamaño de muestra para entrenamiento
---no-show	No abrir imágenes automáticamente
+🔧 Parámetros disponibles
+--epochs → Número de épocas
+--sample → Tamaño de muestra
+--no-show → No abrir imágenes automáticamente
 
-📁 Archivos generados
+📤 Archivos Generados en Paso 2
 
-Se guardan en la carpeta reports/:
+En carpeta reports/:
 paso2_decision_surface.png
 paso2_learning_curve_realtime.gif
 paso2_2x2_dashboard.png
@@ -131,49 +118,55 @@ paso2_reporte.txt
 paso2_reporte.html
 paso2_metrics.csv
 
-📈 Descripción técnica
-🔹 Reducción de dimensionalidad
-Se utiliza TSNE de Scikit-learn para transformar múltiples variables numéricas en 2 componentes visualizables.
+🧪 ¿Cómo Saber si Funcionó Correctamente?
 
-🔹 Visualización
-Se utiliza Seaborn scatterplot donde:
-Color representa el precio (price)
-Tamaño del punto representa el volumen (volume)
+Paso 1 debe mostrar en terminal:
+Shapes de usuarios y transacciones
+Confirmación de columnas generadas
+Resultado del KS test
+Validación de nulos y duplicados
+Paso 2 debe:
+Mostrar scatter plot
+Generar GIF en tiempo real
+Crear dashboard 2x2
+Exportar métricas
 
-🔹 Modelo
-Se entrena:
-Logistic Regression (modelo base)
-SGDClassifier para curva de aprendizaje
+Si eso ocurre → ejecución correcta ✅
 
-🔹 Dashboard 2x2 incluye:
-Scatter PCA 2D
-Superficie de decisión
-Curva Loss vs Epochs
-Distribución de precios
+🚨 Errores Comunes y Soluciones
+❌ Error: No se reconoce python
+Instalar Python desde:
+https://www.python.org/downloads/
 
-🧪 Evidencia reproducible
+❌ Error: No se reconoce git
+Instalar Git desde:
+https://git-scm.com/
 
-El proyecto puede clonarse y ejecutarse desde cero:
-git clone <URL_DEL_REPOSITORIO>
-cd analisis-datos-pandas-numpy
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-python src/paso2_modelo.py
+❌ Error al activar entorno virtual
+Asegurarse de usar el comando correcto según terminal (CMD o PowerShell).
 
-✅ Resultado
-El Paso 2 cumple con:
-Visualización de alta dimensionalidad
-Modelado supervisado
-Subplots 2x2 requeridos
-Curva de aprendizaje en tiempo real
-Exportación de métricas
+❌ Error instalando SciPy
+Usar Python 3.10 o 3.11 (algunas versiones no son compatibles con 3.13).
 
-🧠 Flujo de ejecución del Paso 2
-1. Se cargan las features generadas en Paso 1.
-2. Se reduce dimensionalidad con t-SNE.
-3. Se entrena modelo base (Logistic Regression).
-4. Se genera superficie de decisión.
-5. Se entrena SGDClassifier por épocas.
-6. Se construye dashboard 2x2.
-7. Se exportan métricas y reportes.
+❌ No se generan imágenes
+Eliminar carpeta reports/ y ejecutar nuevamente.
+
+📊 Tecnologías Utilizadas
+
+Pandas
+NumPy
+SciPy
+Scikit-learn
+Matplotlib
+Seaborn
+
+🔄 Flujo Completo del Proyecto
+
+Generación de datos
+Ingeniería de características
+Validación estadística
+Reducción de dimensionalidad
+Entrenamiento de modelo
+Curva de aprendizaje
+Dashboard 2x2
+Exportación de reportes

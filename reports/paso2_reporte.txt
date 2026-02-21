@@ -17,10 +17,10 @@ Loss final            : 0.049513
 
 [SALIDAS GENERADAS]
 Decision surface      : paso2_decision_surface.png
-Learning curve        : paso2_learning_curve.png
+Learning curve        : paso2_learning_curve_realtime.gif
 Dashboard 2x2         : paso2_2x2_dashboard.png
 
 [RUTAS COMPLETAS]
 Decision surface      : C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_decision_surface.png
-Learning curve        : C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_learning_curve.png
+Learning curve        : C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_learning_curve_realtime.gif
 Dashboard 2x2         : C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_2x2_dashboard.png

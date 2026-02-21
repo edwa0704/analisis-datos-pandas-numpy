@@ -1,0 +1,55 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Paso 2 - Reporte</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; color: #111; }
+    h1 { margin: 0 0 8px 0; }
+    .muted { color: #555; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin: 14px 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #f6f6f6; }
+    code { background: #f2f2f2; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>PASO 2 - REPORTE (Modelado + Visualización)</h1>
+  <div class="muted">Working directory: <code>C:\laragon\www\analisis-datos-pandas-numpy</code></div>
+
+  <div class="card">
+    <h2>Modelo base</h2>
+    <table>
+      <tr><th>Modelo</th><td>Logistic Regression</td></tr>
+      <tr><th>Accuracy</th><td>0.9901</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Aprendizaje</h2>
+    <table>
+      <tr><th>Modelo</th><td>SGDClassifier (log_loss)</td></tr>
+      <tr><th>Epochs</th><td>20</td></tr>
+      <tr><th>Loss inicial</th><td>0.052981</td></tr>
+      <tr><th>Loss final</th><td>0.049513</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Salidas generadas</h2>
+    <table>
+      <tr><th>Decision surface</th><td><code>paso2_decision_surface.png</code></td></tr>
+      <tr><th>Learning curve</th><td><code>paso2_learning_curve_realtime.gif</code></td></tr>
+      <tr><th>Dashboard 2x2</th><td><code>paso2_2x2_dashboard.png</code></td></tr>
+    </table>
+    <p class="muted">Rutas completas:</p>
+    <ul>
+      <li>C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_decision_surface.png</li>
+      <li>C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_learning_curve_realtime.gif</li>
+      <li>C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_2x2_dashboard.png</li>
+    </ul>
+  </div>
+</body>
+</html>
