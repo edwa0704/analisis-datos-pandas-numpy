@@ -11,6 +11,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import log_loss
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -109,6 +111,65 @@ def decision_surface_2d(df, out_path="reports/paso2_decision_surface.png"):
 
     print(f"✅ Decision surface guardada en: {out_path}")
 
+def learning_curve_loss_epochs(df, epochs=20, sample=50000, out_path="reports/paso2_learning_curve.png"):
+    """
+    Entrena un modelo con SGD por épocas y registra la pérdida (log loss).
+    Guarda la curva Loss vs Epochs en reports/.
+    """
+    Path("reports").mkdir(exist_ok=True)
+
+    features = ["price_smooth", "amount", "avg_amount_48h", "segment_te", "volume"]
+    target = "is_suspicious"
+
+    work = df[features + [target]].dropna().copy()
+
+    # Muestreo para que sea más rápido (50k suele ser suficiente)
+    if len(work) > sample:
+        work = work.sample(n=sample, random_state=42)
+
+    X = work[features].to_numpy()
+    y = work[target].to_numpy().astype(int)
+
+    # Escalar
+    scaler = StandardScaler()
+    Xs = scaler.fit_transform(X)
+
+    # SGD con log_loss (similar a regresión logística incremental)
+    clf = SGDClassifier(
+        loss="log_loss",
+        penalty="l2",
+        alpha=0.0001,
+        learning_rate="optimal",
+        random_state=42
+    )
+
+    classes = np.array([0, 1], dtype=int)
+    losses = []
+
+    # Entrenamiento por épocas
+    for epoch in range(1, epochs + 1):
+        clf.partial_fit(Xs, y, classes=classes)
+
+        # Probabilidades para calcular log loss
+        proba = clf.predict_proba(Xs)
+        loss = log_loss(y, proba, labels=classes)
+        losses.append(loss)
+
+        print(f"Epoch {epoch}/{epochs} - loss={loss:.6f}")
+
+    # Plot Loss vs Epochs (PNG final)
+    plt.figure(figsize=(8, 5))
+    plt.plot(range(1, epochs + 1), losses, marker="o")
+    plt.title("Curva de aprendizaje - Loss vs Epochs (SGDClassifier)")
+    plt.xlabel("Epoch")
+    plt.ylabel("Log Loss")
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=150)
+    plt.close()
+
+    print(f"✅ Learning curve guardada en: {out_path}")
+    return losses
 
 def main():
     print("Paso 2 - Modelo base iniciado")
@@ -120,8 +181,9 @@ def main():
     model, acc = train_logistic_regression(X, y)
 
     print(f"Accuracy del modelo base: {acc:.4f}")
-    
+
     decision_surface_2d(df)
+    learning_curve_loss_epochs(df, epochs=20, sample=50000)
 
 if __name__ == "__main__":
     main()
