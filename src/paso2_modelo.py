@@ -8,6 +8,7 @@ Incluye:
 - Opción --show: abre automáticamente las imágenes generadas
 """
 
+import imageio.v2 as imageio
 import time
 import argparse
 import os
@@ -154,14 +155,17 @@ def decision_surface_2d(df, out_path="reports/paso2_decision_surface.png"):
     return out_abs
 
 
-def learning_curve_loss_epochs(df, epochs=20, sample=50000, out_path="reports/paso2_learning_curve.png"):
+def learning_curve_realtime_gif(df, epochs=20, sample=50000, gif_path="reports/paso2_learning_curve_realtime.gif"):
+    """
+    Genera un GIF que muestra la curva Loss vs Epochs actualizándose en cada época.
+    No requiere GUI (usa Agg) y cumple el 'tiempo real' como evidencia visual.
+    """
     Path("reports").mkdir(exist_ok=True)
 
     features = ["price_smooth", "amount", "avg_amount_48h", "segment_te", "volume"]
     target = "is_suspicious"
 
     work = df[features + [target]].dropna().copy()
-
     if len(work) > sample:
         work = work.sample(n=sample, random_state=42)
 
@@ -182,26 +186,37 @@ def learning_curve_loss_epochs(df, epochs=20, sample=50000, out_path="reports/pa
     classes = np.array([0, 1], dtype=int)
     losses = []
 
+    frames = []
+    tmp_dir = Path("reports/_frames")
+    tmp_dir.mkdir(exist_ok=True)
+
     for epoch in range(1, epochs + 1):
         clf.partial_fit(Xs, y, classes=classes)
+
         proba = clf.predict_proba(Xs)
         loss = log_loss(y, proba, labels=classes)
         losses.append(loss)
+
+        # generar frame
+        fig = plt.figure(figsize=(8, 5))
+        plt.plot(range(1, len(losses) + 1), losses, marker="o")
+        plt.title("Loss vs Epochs (Tiempo real)")
+        plt.xlabel("Epoch")
+        plt.ylabel("Log Loss")
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+
+        frame_path = tmp_dir / f"frame_{epoch:03d}.png"
+        plt.savefig(frame_path, dpi=120)
+        plt.close(fig)
+
+        frames.append(imageio.imread(frame_path))
         print(f"Epoch {epoch}/{epochs} - loss={loss:.6f}")
 
-    plt.figure(figsize=(8, 5))
-    plt.plot(range(1, epochs + 1), losses, marker="o")
-    plt.title("Curva de aprendizaje - Loss vs Epochs (SGDClassifier)")
-    plt.xlabel("Epoch")
-    plt.ylabel("Log Loss")
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=150)
-    plt.close()
+    imageio.mimsave(gif_path, frames, duration=0.35)
+    print(f"✅ GIF guardado en: {Path(gif_path).resolve()}")
 
-    out_abs = str(Path(out_path).resolve())
-    print(f"✅ Learning curve guardada en: {out_abs}")
-    return losses, out_abs
+    return losses, str(Path(gif_path).resolve())
 
 
 def build_final_2x2_figure(df, losses, out_path="reports/paso2_2x2_dashboard.png"):
@@ -395,25 +410,41 @@ def main():
     _, acc = train_logistic_regression(X, y)
     print(f"Accuracy del modelo base: {acc:.4f}")
 
-    # Generar imágenes
+    # 1️⃣ Superficie de decisión
     path_surface = decision_surface_2d(df)
-    losses, path_curve = learning_curve_loss_epochs(
+
+    # 2️⃣ Curva en tiempo real (GIF)
+    losses, gif_path = learning_curve_realtime_gif(
         df,
         epochs=args.epochs,
         sample=args.sample
     )
+
+    # 3️⃣ Dashboard 2x2 (usa losses del GIF)
     path_dashboard = build_final_2x2_figure(df, losses)
 
-    # Generar reportes
-    report_txt = save_step2_report(acc, losses, path_surface, path_curve, path_dashboard)
-    report_html = save_step2_report_html(acc, losses, path_surface, path_curve, path_dashboard)
+    # 4️⃣ Reportes (usar gif como "learning curve")
+    report_txt = save_step2_report(
+        acc,
+        losses,
+        path_surface,
+        gif_path,  # ahora usamos el GIF
+        path_dashboard
+    )
 
-    # 👇 ESTE BLOQUE DEBE ESTAR DENTRO DE main()
+    report_html = save_step2_report_html(
+        acc,
+        losses,
+        path_surface,
+        gif_path,
+        path_dashboard
+    )
+
     should_show = (not args.no_show) and sys.platform.startswith("win")
 
     if should_show:
+        open_file(gif_path); time.sleep(args.open_delay)
         open_file(path_surface); time.sleep(args.open_delay)
-        open_file(path_curve); time.sleep(args.open_delay)
         open_file(path_dashboard); time.sleep(args.open_delay)
         open_file(report_txt); time.sleep(0.4)
         open_file(report_html); time.sleep(0.4)
