@@ -397,6 +397,21 @@ def save_step2_report_html(acc, losses, path_surface, path_curve, path_dashboard
     print(f"✅ Reporte HTML guardado en: {out.resolve()}")
     return str(out.resolve())
 
+def save_metrics_csv(acc, losses, filename="reports/paso2_metrics.csv"):
+    Path("reports").mkdir(exist_ok=True)
+
+    df_metrics = pd.DataFrame([{
+        "accuracy": float(acc),
+        "epochs": int(len(losses)),
+        "loss_inicial": float(losses[0]) if losses else None,
+        "loss_final": float(losses[-1]) if losses else None,
+    }])
+
+    out_path = Path(filename)
+    df_metrics.to_csv(out_path, index=False)
+
+    print(f"✅ Métricas CSV guardadas en: {out_path.resolve()}")
+    return str(out_path.resolve())
 def main():
     args = parse_args()
 
@@ -408,9 +423,8 @@ def main():
 
     X, y, _ = prepare_model_data(df)
     _, acc = train_logistic_regression(X, y)
-    print(f"Accuracy del modelo base: {acc:.4f}")
 
-    # 1️⃣ Superficie de decisión
+    # 1️⃣ Decision Surface
     path_surface = decision_surface_2d(df)
 
     # 2️⃣ Curva en tiempo real (GIF)
@@ -420,26 +434,22 @@ def main():
         sample=args.sample
     )
 
-    # 3️⃣ Dashboard 2x2 (usa losses del GIF)
+    # 3️⃣ Dashboard 2x2
     path_dashboard = build_final_2x2_figure(df, losses)
 
-    # 4️⃣ Reportes (usar gif como "learning curve")
+    # 4️⃣ Reportes TXT + HTML
     report_txt = save_step2_report(
-        acc,
-        losses,
-        path_surface,
-        gif_path,  # ahora usamos el GIF
-        path_dashboard
+        acc, losses, path_surface, gif_path, path_dashboard
     )
 
     report_html = save_step2_report_html(
-        acc,
-        losses,
-        path_surface,
-        gif_path,
-        path_dashboard
+        acc, losses, path_surface, gif_path, path_dashboard
     )
 
+    # 5️⃣ NUEVO (Commit 10) → Guardar métricas en CSV
+    metrics_csv = save_metrics_csv(acc, losses)
+
+    # 6️⃣ Mostrar automáticamente en Windows
     should_show = (not args.no_show) and sys.platform.startswith("win")
 
     if should_show:
@@ -448,6 +458,7 @@ def main():
         open_file(path_dashboard); time.sleep(args.open_delay)
         open_file(report_txt); time.sleep(0.4)
         open_file(report_html); time.sleep(0.4)
+        open_file(metrics_csv); time.sleep(0.4)
 
 if __name__ == "__main__":
     main()
