@@ -35,8 +35,14 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 def parse_args():
     p = argparse.ArgumentParser(description="Paso 2 - Modelo + Dashboard")
+
+    p.add_argument("--epochs", type=int, default=20, help="Cantidad de épocas para SGDClassifier (loss vs epochs)")
+    p.add_argument("--sample", type=int, default=50000, help="Muestra de filas para curva de aprendizaje (rendimiento)")
+    p.add_argument("--open-delay", type=float, default=0.8, help="Pausa (segundos) entre aperturas en Windows")
+
     # por defecto abre en Windows, si no quieres: --no-show
     p.add_argument("--no-show", action="store_true", help="No abrir imágenes/reportes al finalizar")
+
     return p.parse_args()
 
 
@@ -391,20 +397,24 @@ def main():
 
     # Generar imágenes
     path_surface = decision_surface_2d(df)
-    losses, path_curve = learning_curve_loss_epochs(df, epochs=20, sample=50000)
+    losses, path_curve = learning_curve_loss_epochs(
+        df,
+        epochs=args.epochs,
+        sample=args.sample
+    )
     path_dashboard = build_final_2x2_figure(df, losses)
 
     # Generar reportes
     report_txt = save_step2_report(acc, losses, path_surface, path_curve, path_dashboard)
     report_html = save_step2_report_html(acc, losses, path_surface, path_curve, path_dashboard)
 
-    # Mostrar por defecto en Windows, salvo que usen --no-show
+    # 👇 ESTE BLOQUE DEBE ESTAR DENTRO DE main()
     should_show = (not args.no_show) and sys.platform.startswith("win")
 
     if should_show:
-        open_file(path_surface); time.sleep(0.8)
-        open_file(path_curve); time.sleep(0.8)
-        open_file(path_dashboard); time.sleep(0.8)
+        open_file(path_surface); time.sleep(args.open_delay)
+        open_file(path_curve); time.sleep(args.open_delay)
+        open_file(path_dashboard); time.sleep(args.open_delay)
         open_file(report_txt); time.sleep(0.4)
         open_file(report_html); time.sleep(0.4)
 
