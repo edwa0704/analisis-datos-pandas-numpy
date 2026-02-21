@@ -35,8 +35,8 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 def parse_args():
     p = argparse.ArgumentParser(description="Paso 2 - Modelo + Dashboard")
-    # Por defecto abre (en Windows). Si no quieres, usas --no-show
-    p.add_argument("--no-show", action="store_true", help="No abrir imágenes al finalizar")
+    # por defecto abre en Windows, si no quieres: --no-show
+    p.add_argument("--no-show", action="store_true", help="No abrir imágenes/reportes al finalizar")
     return p.parse_args()
 
 
@@ -389,29 +389,24 @@ def main():
     _, acc = train_logistic_regression(X, y)
     print(f"Accuracy del modelo base: {acc:.4f}")
 
+    # Generar imágenes
     path_surface = decision_surface_2d(df)
     losses, path_curve = learning_curve_loss_epochs(df, epochs=20, sample=50000)
     path_dashboard = build_final_2x2_figure(df, losses)
 
-    report_path = save_step2_report(acc, losses, path_surface, path_curve, path_dashboard)
+    # Generar reportes
+    report_txt = save_step2_report(acc, losses, path_surface, path_curve, path_dashboard)
+    report_html = save_step2_report_html(acc, losses, path_surface, path_curve, path_dashboard)
 
-    # ✅ ESTE BLOQUE TIENE QUE ESTAR DENTRO DE main()
-    # ✅ Mostrar por defecto en Windows, salvo que usen --no-show
+    # Mostrar por defecto en Windows, salvo que usen --no-show
     should_show = (not args.no_show) and sys.platform.startswith("win")
 
     if should_show:
-        open_file(path_surface)
-        time.sleep(0.8)
+        open_file(path_surface); time.sleep(0.8)
+        open_file(path_curve); time.sleep(0.8)
+        open_file(path_dashboard); time.sleep(0.8)
+        open_file(report_txt); time.sleep(0.4)
+        open_file(report_html); time.sleep(0.4)
 
-        open_file(path_curve)
-        time.sleep(0.8)
-
-        open_file(path_dashboard)
-        time.sleep(0.8)
-
-        open_file(report_path)  # opcional: abre el txt
-
-        report_html = save_step2_report_html(acc, losses, path_surface, path_curve, path_dashboard)
-        open_file(report_html)
 if __name__ == "__main__":
     main()
