@@ -35,7 +35,8 @@ from sklearn.model_selection import train_test_split
 # ---------------------------
 def parse_args():
     p = argparse.ArgumentParser(description="Paso 2 - Modelo + Dashboard")
-    p.add_argument("--show", action="store_true", help="Abrir imágenes al finalizar")
+    # Por defecto abre (en Windows). Si no quieres, usas --no-show
+    p.add_argument("--no-show", action="store_true", help="No abrir imágenes al finalizar")
     return p.parse_args()
 
 
@@ -264,6 +265,116 @@ def build_final_2x2_figure(df, losses, out_path="reports/paso2_2x2_dashboard.png
     print(f"✅ Figura 2x2 guardada en: {out_abs}")
     return out_abs
 
+def save_step2_report(acc, losses, path_surface, path_curve, path_dashboard, filename="reports/paso2_reporte.txt"):
+    Path("reports").mkdir(exist_ok=True)
+
+    def line(k, v, w=22):
+        return f"{k:<{w}}: {v}\n"
+
+    report = []
+    report.append("=" * 50 + "\n")
+    report.append("PASO 2 - REPORTE (MODELADO + VISUALIZACIÓN)\n")
+    report.append("=" * 50 + "\n\n")
+
+    report.append("[EJECUCIÓN]\n")
+    report.append(line("Working directory", Path.cwd()))
+    report.append("\n")
+
+    report.append("[MODELO BASE]\n")
+    report.append(line("Modelo", "Logistic Regression"))
+    report.append(line("Accuracy", f"{acc:.4f}"))
+    report.append("\n")
+
+    report.append("[APRENDIZAJE]\n")
+    report.append(line("Modelo", "SGDClassifier (log_loss)"))
+    report.append(line("Epochs", len(losses)))
+    if losses:
+        report.append(line("Loss inicial", f"{losses[0]:.6f}"))
+        report.append(line("Loss final", f"{losses[-1]:.6f}"))
+    report.append("\n")
+
+    report.append("[SALIDAS GENERADAS]\n")
+    report.append(line("Decision surface", Path(path_surface).name))
+    report.append(line("Learning curve", Path(path_curve).name))
+    report.append(line("Dashboard 2x2", Path(path_dashboard).name))
+    report.append("\n")
+
+    report.append("[RUTAS COMPLETAS]\n")
+    report.append(line("Decision surface", path_surface))
+    report.append(line("Learning curve", path_curve))
+    report.append(line("Dashboard 2x2", path_dashboard))
+
+    out_path = Path(filename)
+    out_path.write_text("".join(report), encoding="utf-8")
+    print(f"✅ Reporte Paso 2 guardado en: {out_path.resolve()}")
+    return str(out_path.resolve())
+
+def save_step2_report_html(acc, losses, path_surface, path_curve, path_dashboard, filename="reports/paso2_reporte.html"):
+    Path("reports").mkdir(exist_ok=True)
+
+    loss_ini = f"{losses[0]:.6f}" if losses else "N/A"
+    loss_fin = f"{losses[-1]:.6f}" if losses else "N/A"
+
+    html = f"""
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Paso 2 - Reporte</title>
+  <style>
+    body {{ font-family: Arial, sans-serif; margin: 24px; color: #111; }}
+    h1 {{ margin: 0 0 8px 0; }}
+    .muted {{ color: #555; }}
+    .card {{ border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin: 14px 0; }}
+    table {{ border-collapse: collapse; width: 100%; }}
+    th, td {{ border: 1px solid #ddd; padding: 10px; text-align: left; }}
+    th {{ background: #f6f6f6; }}
+    code {{ background: #f2f2f2; padding: 2px 6px; border-radius: 6px; }}
+  </style>
+</head>
+<body>
+  <h1>PASO 2 - REPORTE (Modelado + Visualización)</h1>
+  <div class="muted">Working directory: <code>{Path.cwd()}</code></div>
+
+  <div class="card">
+    <h2>Modelo base</h2>
+    <table>
+      <tr><th>Modelo</th><td>Logistic Regression</td></tr>
+      <tr><th>Accuracy</th><td>{acc:.4f}</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Aprendizaje</h2>
+    <table>
+      <tr><th>Modelo</th><td>SGDClassifier (log_loss)</td></tr>
+      <tr><th>Epochs</th><td>{len(losses)}</td></tr>
+      <tr><th>Loss inicial</th><td>{loss_ini}</td></tr>
+      <tr><th>Loss final</th><td>{loss_fin}</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Salidas generadas</h2>
+    <table>
+      <tr><th>Decision surface</th><td><code>{Path(path_surface).name}</code></td></tr>
+      <tr><th>Learning curve</th><td><code>{Path(path_curve).name}</code></td></tr>
+      <tr><th>Dashboard 2x2</th><td><code>{Path(path_dashboard).name}</code></td></tr>
+    </table>
+    <p class="muted">Rutas completas:</p>
+    <ul>
+      <li>{path_surface}</li>
+      <li>{path_curve}</li>
+      <li>{path_dashboard}</li>
+    </ul>
+  </div>
+</body>
+</html>
+"""
+    out = Path(filename)
+    out.write_text(html, encoding="utf-8")
+    print(f"✅ Reporte HTML guardado en: {out.resolve()}")
+    return str(out.resolve())
 
 def main():
     args = parse_args()
@@ -278,17 +389,17 @@ def main():
     _, acc = train_logistic_regression(X, y)
     print(f"Accuracy del modelo base: {acc:.4f}")
 
-    # Generar imágenes
     path_surface = decision_surface_2d(df)
     losses, path_curve = learning_curve_loss_epochs(df, epochs=20, sample=50000)
     path_dashboard = build_final_2x2_figure(df, losses)
 
-    print("Abrir surface:", path_surface)
-    print("Abrir curve:", path_curve)
-    print("Abrir dashboard:", path_dashboard)
+    report_path = save_step2_report(acc, losses, path_surface, path_curve, path_dashboard)
 
-    # Abrir con pausas para que Windows no se salte la tercera
-    if args.show:
+    # ✅ ESTE BLOQUE TIENE QUE ESTAR DENTRO DE main()
+    # ✅ Mostrar por defecto en Windows, salvo que usen --no-show
+    should_show = (not args.no_show) and sys.platform.startswith("win")
+
+    if should_show:
         open_file(path_surface)
         time.sleep(0.8)
 
@@ -298,6 +409,9 @@ def main():
         open_file(path_dashboard)
         time.sleep(0.8)
 
+        open_file(report_path)  # opcional: abre el txt
 
+        report_html = save_step2_report_html(acc, losses, path_surface, path_curve, path_dashboard)
+        open_file(report_html)
 if __name__ == "__main__":
     main()
