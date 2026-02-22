@@ -170,3 +170,13 @@ Entrenamiento de modelo
 Curva de aprendizaje
 Dashboard 2x2
 Exportación de reportes
+
+**Notas de mejora**
+
+- Documentación: corregir y simplificar los comandos de activación y distinguir claramente CMD / PowerShell / Git Bash.
+- Dependencias: separar un `requirements-core.txt` (mínimo) y un `requirements-dev.txt` (Jupyter, tests, tooling).
+- Instalación: indicar dependencias críticas (`imageio`, `imageio-ffmpeg`) y cómo instalar `torch` para CPU/GPU.
+- Robustez: asegurar que los scripts creen `data/` y `reports/` si no existen; añadir un `check_env.py` (smoke-test).
+- Errores comunes: listar soluciones rápidas (activar .venv correctamente, usar `.venv/Scripts/python.exe` si hay problemas de shell).
+
+Nota: 13

@@ -3,17 +3,17 @@ PASO 2 - REPORTE (MODELADO + VISUALIZACIÓN)
 ==================================================
 
 [EJECUCIÓN]
-Working directory     : C:\laragon\www\analisis-datos-pandas-numpy
+Working directory     : C:\Users\SISTEMAS 02\Desktop\Proyectos_Practicantes\analisis-datos-pandas-numpy
 
 [MODELO BASE]
 Modelo                : Logistic Regression
-Accuracy              : 0.9901
+Accuracy              : 0.9895
 
 [APRENDIZAJE]
 Modelo                : SGDClassifier (log_loss)
-Epochs                : 20
-Loss inicial          : 0.052981
-Loss final            : 0.049513
+Epochs                : 5
+Loss inicial          : 0.201557
+Loss final            : 0.058003
 
 [SALIDAS GENERADAS]
 Decision surface      : paso2_decision_surface.png
@@ -21,6 +21,6 @@ Learning curve        : paso2_learning_curve_realtime.gif
 Dashboard 2x2         : paso2_2x2_dashboard.png
 
 [RUTAS COMPLETAS]
-Decision surface      : C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_decision_surface.png
-Learning curve        : C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_learning_curve_realtime.gif
-Dashboard 2x2         : C:\laragon\www\analisis-datos-pandas-numpy\reports\paso2_2x2_dashboard.png
+Decision surface      : C:\Users\SISTEMAS 02\Desktop\Proyectos_Practicantes\analisis-datos-pandas-numpy\reports\paso2_decision_surface.png
+Learning curve        : C:\Users\SISTEMAS 02\Desktop\Proyectos_Practicantes\analisis-datos-pandas-numpy\reports\paso2_learning_curve_realtime.gif
+Dashboard 2x2         : C:\Users\SISTEMAS 02\Desktop\Proyectos_Practicantes\analisis-datos-pandas-numpy\reports\paso2_2x2_dashboard.png

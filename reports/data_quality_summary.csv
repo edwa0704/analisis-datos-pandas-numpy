@@ -1,8 +1,8 @@
 ,value
-rows,200000.0
+rows,20000.0
 cols,12.0
 dup_tx_id,0.0
 price_min,1.0
-price_max,216.8257293701172
+price_max,208.1730194091797
 volume_min,1.0
 volume_max,4.0

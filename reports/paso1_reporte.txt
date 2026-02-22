@@ -1,22 +1,22 @@
 Paso 1 - Resumen
-Users: (5000, 3)
-Tx: (200000, 6)
-DF final: (200000, 12)
+Users: (1000, 3)
+Tx: (20000, 6)
+DF final: (20000, 12)
 Columnas: ['tx_id', 'user_id', 'timestamp', 'price', 'volume', 'is_suspicious', 'segment', 'country', 'amount', 'avg_amount_48h', 'segment_te', 'price_smooth']
 
 KS test (price) normal vs sospechosa
-n_normal=198016, n_suspicious=1984
-KS_statistic=0.016815, p_value=6.290287e-01
+n_normal=19807, n_suspicious=193
+KS_statistic=0.052505, p_value=6.485638e-01
 
 Data Quality Summary:
-                    value
-rows        200000.000000
-cols            12.000000
-dup_tx_id        0.000000
-price_min        1.000000
-price_max      216.825729
-volume_min       1.000000
-volume_max       4.000000
+                   value
+rows        20000.000000
+cols           12.000000
+dup_tx_id       0.000000
+price_min       1.000000
+price_max     208.173019
+volume_min      1.000000
+volume_max      4.000000
 
 Null Values (Top 10):
         column  null_count
