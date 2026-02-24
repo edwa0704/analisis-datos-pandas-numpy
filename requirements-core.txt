@@ -1,0 +1,17 @@
+# Core scientific stack
+numpy
+pandas
+scipy
+
+# Modeling + PCA/t-SNE
+scikit-learn
+
+# Plots / dashboards (matplotlib-based)
+matplotlib
+
+# GIF + export
+imageio
+imageio-ffmpeg
+
+# Quality of life (optional but common)
+tqdm

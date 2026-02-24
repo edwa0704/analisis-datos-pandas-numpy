@@ -1,0 +1,13 @@
+# Include core deps
+-r requirements-core.txt
+
+# Notebooks / experimentation
+jupyter
+ipykernel
+
+# Testing
+pytest
+
+# Formatting / linting
+black
+ruff
